@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09AB146B2E5C35280052AEFD /* Anjan.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 09AB146A2E5C35280052AEFD /* Anjan.pdf */; };
 		9283346A2E5984B100FB894F /* HomeWebModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928334572E5984B100FB894F /* HomeWebModel.swift */; };
 		9283346B2E5984B100FB894F /* HomeWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928334592E5984B100FB894F /* HomeWebViewController.swift */; };
 		9283346C2E5984B100FB894F /* HomeWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9283345B2E5984B100FB894F /* HomeWebViewModel.swift */; };
@@ -16,7 +17,7 @@
 		9283347A2E5984C800FB894F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928334772E5984C800FB894F /* SceneDelegate.swift */; };
 		928334812E5984FF00FB894F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9283347D2E5984FF00FB894F /* LaunchScreen.storyboard */; };
 		928334822E5984FF00FB894F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9283347F2E5984FF00FB894F /* Main.storyboard */; };
-		928334842E5B4B5800FB894F /* Saadvadanagara.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 928334832E5B4B5800FB894F /* Saadvadanagara.pdf */; };
+		928334842E5B4B5800FB894F /* SaadVadanagara.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 928334832E5B4B5800FB894F /* SaadVadanagara.pdf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		09AB146A2E5C35280052AEFD /* Anjan.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Anjan.pdf; sourceTree = "<group>"; };
 		928334162E59841A00FB894F /* autoFiller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = autoFiller.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9283342F2E59841B00FB894F /* autoFillerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = autoFillerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		928334392E59841B00FB894F /* autoFillerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = autoFillerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,7 +52,7 @@
 		928334772E5984C800FB894F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		9283347C2E5984FF00FB894F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9283347E2E5984FF00FB894F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		928334832E5B4B5800FB894F /* Saadvadanagara.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Saadvadanagara.pdf; sourceTree = "<group>"; };
+		928334832E5B4B5800FB894F /* SaadVadanagara.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = SaadVadanagara.pdf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -148,7 +150,6 @@
 		928334682E5984B100FB894F /* autoFiller */ = {
 			isa = PBXGroup;
 			children = (
-				928334832E5B4B5800FB894F /* Saadvadanagara.pdf */,
 				928334802E5984FF00FB894F /* StoryBoard */,
 				928334612E5984B100FB894F /* Info.plist */,
 				928334782E5984C800FB894F /* Applicaiton */,
@@ -161,9 +162,11 @@
 		928334782E5984C800FB894F /* Applicaiton */ = {
 			isa = PBXGroup;
 			children = (
+				09AB146A2E5C35280052AEFD /* Anjan.pdf */,
 				9283345F2E5984B100FB894F /* Assets.xcassets */,
 				928334762E5984C800FB894F /* AppDelegate.swift */,
 				928334772E5984C800FB894F /* SceneDelegate.swift */,
+				928334832E5B4B5800FB894F /* SaadVadanagara.pdf */,
 			);
 			path = Applicaiton;
 			sourceTree = "<group>";
@@ -295,7 +298,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				928334812E5984FF00FB894F /* LaunchScreen.storyboard in Resources */,
-				928334842E5B4B5800FB894F /* Saadvadanagara.pdf in Resources */,
+				09AB146B2E5C35280052AEFD /* Anjan.pdf in Resources */,
+				928334842E5B4B5800FB894F /* SaadVadanagara.pdf in Resources */,
 				928334822E5984FF00FB894F /* Main.storyboard in Resources */,
 				928334712E5984B100FB894F /* Assets.xcassets in Resources */,
 			);

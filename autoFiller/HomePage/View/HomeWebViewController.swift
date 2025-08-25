@@ -7,14 +7,20 @@
 
 import UIKit
 import WebKit
+import UniformTypeIdentifiers
+import QuickLook
 
-class HomeWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, UISearchBarDelegate {
+class HomeWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, UISearchBarDelegate, WKScriptMessageHandler  {
     
     @IBOutlet weak var searchview: UISearchBar!
     @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var leftBtn: UIButton!
     @IBOutlet weak var rigthBtn: UIButton!
     @IBOutlet weak var refreshBtn: UIButton!
+    
+    private var fileUploadCompletionHandler: (([URL]?) -> Void)?
+    private var previewURL: URL?
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +59,6 @@ class HomeWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     // MARK: - WKNavigationDelegate
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         injectAutofillJS()
-        injectFileUploadJS()
         updateNavButtons()
     }
     
@@ -134,18 +139,7 @@ class HomeWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
         webView.evaluateJavaScript(js, completionHandler: nil)
     }
     
-    // MARK: - File Upload Autofill
-    private func injectFileUploadJS() {
-        let js = """
-        document.querySelectorAll('input[type=file]').forEach(input => {
-            input.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.webkit.messageHandlers.fileUpload.postMessage('resume');
-            });
-        });
-        """
-        webView.evaluateJavaScript(js, completionHandler: nil)
-    }
+   
     
     // MARK: - Nav Buttons
     @IBAction func leftBtnAction(_ sender: UIButton) {
@@ -168,45 +162,123 @@ class HomeWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     }
 }
 
-// MARK: - WKScriptMessageHandler
-extension HomeWebViewController: WKScriptMessageHandler {
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+extension HomeWebViewController : UIDocumentPickerDelegate {
+
+    @available(iOS 18.4, *)
+    func webView(_ webView: WKWebView,
+                 runOpenPanelWith parameters: WKOpenPanelParameters,
+                 initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping ([URL]?) -> Void) {
+
+        fileUploadCompletionHandler = completionHandler
+
+        let supportedTypes: [UTType] = [.pdf]
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: supportedTypes, asCopy: true)
+        documentPicker.allowsMultipleSelection = false
+        documentPicker.delegate = self
+        documentPicker.modalPresentationStyle = .automatic
+        present(documentPicker, animated: true)
+    }
+    
+    @objc(userContentController:didReceiveScriptMessage:) func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "fileUpload" {
-            if let resumeURL = Bundle.main.url(forResource: "SaadVadanagara", withExtension: "pdf"),
-               let data = try? Data(contentsOf: resumeURL) {
-                
-                let base64 = data.base64EncodedString()
-                let js = """
-                (function() {
-                    var fileInput = document.querySelector('input[type=file]');
-                    if (!fileInput) return;
-                    
-                    // Create a new file from Base64
-                    function base64ToBlob(base64, contentType) {
-                        var byteCharacters = atob(base64);
-                        var byteNumbers = new Array(byteCharacters.length);
-                        for (var i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        var byteArray = new Uint8Array(byteNumbers);
-                        return new Blob([byteArray], {type: contentType});
-                    }
-                    
-                    var blob = base64ToBlob('\(base64)', 'application/pdf');
-                    var file = new File([blob], "SaadVadanagara.pdf", {type: "application/pdf"});
-                    var dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    fileInput.files = dataTransfer.files;
-                    
-                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    console.log("📂 Resume auto-attached!");
-                })();
-                """
-                
-                webView.evaluateJavaScript(js, completionHandler: nil)
-            } else {
-                print("⚠️ Resume not found in bundle")
-            }
+            // handle JS file upload call
+            print("JS requested file upload")
+            // present your UIDocumentPicker here
+//            presentFilePicker()
         }
     }
+
 }
+
+extension HomeWebViewController {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        controller.dismiss(animated: true)
+        fileUploadCompletionHandler?(urls)  // Pass files back to WKWebView
+        fileUploadCompletionHandler = nil
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        controller.dismiss(animated: true)
+        fileUploadCompletionHandler?(nil)   // Notify cancellation
+        fileUploadCompletionHandler = nil
+    }
+
+}
+
+
+extension HomeWebViewController :  WKDownloadDelegate,QLPreviewControllerDataSource {
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction,
+                 didBecome download: WKDownload) {
+        download.delegate = self
+    }
+
+    // Called when download starts
+        func download(_ download: WKDownload, decideDestinationUsing response: URLResponse,
+                      suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
+            // Save to temporary folder
+            let tempDir = FileManager.default.temporaryDirectory
+            let fileURL = tempDir.appendingPathComponent(suggestedFilename)
+            completionHandler(fileURL)
+        }
+
+        // Called periodically to report progress
+        func download(_ download: WKDownload, didReceive data: Data) {
+            // optional: update progress UI
+        }
+
+        // Called when download finishes successfully
+        func downloadDidFinish(_ download: WKDownload) {
+            print("Download finished")
+        }
+
+        // Called if download fails
+        func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
+            print("Download failed: \(error.localizedDescription)")
+        }
+    
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                     decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            
+            if let url = navigationAction.request.url {
+                let pathExtension = url.pathExtension.lowercased()
+                
+                // File types Safari usually "opens"
+                let openableTypes = ["pdf", "png", "jpg", "jpeg", "txt", "doc", "docx"]
+                
+                if openableTypes.contains(pathExtension) {
+                    // Download to temp and open with QuickLook
+                    downloadAndPreview(url: url)
+                    decisionHandler(.cancel)
+                    return
+                }
+            }
+            
+            decisionHandler(.allow)
+        }
+        
+        private func downloadAndPreview(url: URL) {
+            let task = URLSession.shared.downloadTask(with: url) { localURL, response, error in
+                guard let localURL = localURL else { return }
+                DispatchQueue.main.async {
+                    self.previewURL = localURL
+                    let previewVC = QLPreviewController()
+                    previewVC.dataSource = self
+                    self.present(previewVC, animated: true)
+                }
+            }
+            task.resume()
+        }
+        
+        // MARK: - QuickLook DataSource
+        func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+            return previewURL == nil ? 0 : 1
+        }
+        
+        func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+            return previewURL! as NSURL
+        }
+}
+
+
